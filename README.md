@@ -1,5 +1,5 @@
 # PortfolioX
-# PortfolioGenie
+
 AI-powered developer portfolio builder for junior developers.
 
 ## Team
