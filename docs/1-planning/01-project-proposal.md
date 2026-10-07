@@ -25,3 +25,19 @@ for jobs or freelance work.
 - Difficulty writing a strong "About Me" and project descriptions.
 - No time or design experience to build a portfolio website.
 - Information is scattered between GitHub and LinkedIn.
+## 3. Objectives
+
+### Main Objective
+Help junior developers build a professional portfolio and improve
+their GitHub presence quickly, using AI-guided assistance.
+
+### Specific Objectives
+- Build a Portfolio Builder with an AI chatbot, a live preview, and a
+  manual editor for experience, education, and skills.
+- Build a GitHub Profile Improver that analyzes a profile and helps
+  write clear README files for repositories.
+- Design a clean, accessible, and responsive user interface based on
+  the design thinking process (personas and wireframes).
+- Use React Hooks and React Router to create a smooth multi-step
+  experience.
+- Write clean, maintainable code that follows industry best practices.
