@@ -66,3 +66,15 @@ their GitHub presence quickly, using AI-guided assistance.
 - Access to private GitHub repositories.
 - Hosting or publishing the generated portfolio as a live website.
 - Mobile applications.
+## 5. Target Users
+
+### Primary Users
+- Junior developers and fresh graduates who need a professional
+  portfolio to apply for jobs or internships.
+- Students and bootcamp learners (such as DEPI trainees) who have
+  projects on GitHub but no clear way to present them.
+- Beginner freelancers who want to showcase their work to clients.
+
+### Secondary Users
+- Recruiters and hiring managers who view the generated portfolios.
+- Mentors and instructors who review students' GitHub profiles.
