@@ -41,3 +41,25 @@ their GitHub presence quickly, using AI-guided assistance.
 - Use React Hooks and React Router to create a smooth multi-step
   experience.
 - Write clean, maintainable code that follows industry best practices.
+## 4. Scope
+
+### In Scope
+- Portfolio Builder page with three panels: AI chatbot, live
+  portfolio preview, and a manual editor (experience, education, skills).
+- Reading public data from a GitHub profile link and its repositories.
+- Importing LinkedIn data through an uploaded PDF or pasted text.
+- AI-generated project descriptions and "About Me" suggestions.
+- GitHub Profile Improver: analyzes a public profile and gives the
+  user recommendations on what to change, including a suggested README
+  for each repository that the user can copy.
+- Multi-step form built with React Hooks and navigation with React Router.
+- Responsive and accessible UI.
+
+### Out of Scope
+- Direct integration with the LinkedIn API or scraping LinkedIn profiles.
+- Automatically editing or publishing anything on the user's GitHub
+  (the tool only suggests, the user applies changes manually).
+- User accounts, passwords, or login to the user's GitHub.
+- Hosting or publishing the generated portfolio as a live website.
+- Mobile applications.
+- Support for private GitHub repositories.
