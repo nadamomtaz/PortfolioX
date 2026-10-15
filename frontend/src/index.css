@@ -1,24 +1,90 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
-@theme {
-  --color-page: #0B1020;
-  --color-card: #111936;
-  --color-card-border: #1E2A52;
-
-  --color-text-primary: #E5E7EB;
-  --color-text-secondary: #9CA3AF;
-
-  --color-accent: #22D3EE;
-  --color-accent-hover: #67E8F9;
-  --color-purple: #8B5CF6;
-  --color-success: #22C55E;
+:root {
+  color-scheme: light;
+  --page: #faf7f2;
+  --surface: #ffffff;
+  --before: #efe9df;
+  --ink: #16130f;
+  --muted: #5c564d;
+  --line: #16130f;
+  --hair: rgba(22, 19, 15, 0.14);
+  --accent: #1f3fd1;
+  --on-accent: #ffffff;
+  --mark: rgba(31, 63, 209, 0.16);
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #14120f;
+  --surface: #1d1a16;
+  --before: #221f1a;
+  --ink: #f3eee4;
+  --muted: #a8a194;
+  --line: #4a443a;
+  --hair: rgba(243, 238, 228, 0.12);
+  --accent: #8ea2ff;
+  --on-accent: #14120f;
+  --mark: rgba(142, 162, 255, 0.32);
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-before: var(--before);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-hair: var(--hair);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+
+  --font-heading: "Instrument Serif", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
 html {
   scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--page);
+  color: var(--ink);
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+.mark {
+  background-image: linear-gradient(
+    transparent 58%,
+    var(--mark) 58%,
+    var(--mark) 92%,
+    transparent 92%
+  );
+  padding: 0 0.08em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

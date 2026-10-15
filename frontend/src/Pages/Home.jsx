@@ -1,547 +1,726 @@
-import { useEffect, useState } from 'react';
-
-function Home() {
-const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-// Close the mobile menu when Escape is pressed
-useEffect(() => {
-function handleKeyDown(event) {
-if (event.key === 'Escape') {
-setIsMenuOpen(false);
-}
-}
-
-window.addEventListener('keydown', handleKeyDown);
-
-return () => {
-  window.removeEventListener('keydown', handleKeyDown);
-};
-
-}, []);
-
-// Close the menu when a navigation link is selected
-function closeMenu() {
-setIsMenuOpen(false);
-}
+import { useEffect, useRef, useState } from "react";
 
 const focusStyle =
-'focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent';
+  "focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-accent";
 
-return ( <div className="min-h-screen overflow-x-hidden bg-page text-text-primary">
-{/* Skip Link: visible when focused */} <a
-     href="#main-content"
-     className="sr-only z-[100] rounded-md bg-accent px-4 py-3 font-semibold text-page focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
-   >
-Skip to main content </a>
+function useTheme() {
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark") return saved;
+    } catch {
 
-  {/* Navbar */}
-  <header className="sticky top-0 z-50 border-b border-white/10 bg-page/80 backdrop-blur-md">
-    <nav
-      className="mx-auto flex h-16 max-w-[1296px] items-center justify-between px-6 md:px-12"
-      aria-label="Main navigation"
+    }
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+   }
+  }, [theme]);
+
+  const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  return [theme, toggle];
+}
+
+function ThemeToggle({ theme, onToggle }) {
+  const isDark = theme === "dark";
+
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-line transition-colors duration-200 hover:bg-ink hover:text-page ${focusStyle}`}
     >
-      {/* Logo */}
-      <a
-        href="/"
-        onClick={closeMenu}
-        className={`text-2xl font-bold tracking-tight ${focusStyle}`}
-        aria-label="PortfolioX Home"
+      {isDark ? (
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          className="h-[18px] w-[18px]"
+        >
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+        </svg>
+      ) : (
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-[18px] w-[18px]"
+        >
+          <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+        </svg>
+      )}
+    </button>
+  );
+}
+function Navbar({ theme, onToggleTheme }) {
+  return (
+    <header className="sticky top-0 z-50 border-b border-line bg-page/85 backdrop-blur-md">
+      <nav
+        className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6 md:px-14"
+        aria-label="Main navigation"
       >
-        Portfolio<span className="text-accent">X</span>
-      </a>
-
-      {/* Desktop Navigation */}
-      <div className="hidden items-center gap-8 md:flex">
         <a
-          href="#features"
-          className={`text-sm text-text-secondary transition-colors duration-200 hover:text-white hover:underline ${focusStyle}`}
+          href="/"
+          aria-label="PortfolioX Home"
+          className={`font-heading text-2xl leading-none sm:text-[28px] ${focusStyle}`}
         >
-          Features
+          PortfolioX
         </a>
 
-        <a
-          href="/login"
-          className={`rounded-lg px-4 py-2 text-sm text-text-secondary transition-colors duration-200 hover:text-white ${focusStyle}`}
-        >
-          Log in
-        </a>
+        <div className="flex items-center gap-2 sm:gap-6">
+          <a
+            href="/login"
+            className={`inline-flex min-h-11 items-center px-1 text-sm hover:underline sm:text-[15px] ${focusStyle}`}
+          >
+            Log in
+          </a>
 
-        <a
-          href="/signup"
-          className={`rounded-[10px] bg-accent px-5 py-2.5 text-sm font-semibold text-page transition-colors duration-200 hover:bg-accent-hover active:scale-[0.98] ${focusStyle}`}
-        >
-          Sign up
-        </a>
+          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+
+          <a
+            href="/signup"
+            className={`inline-flex min-h-11 items-center justify-center rounded-full bg-ink px-4 text-sm font-semibold text-page transition-opacity duration-200 hover:opacity-85 sm:px-5 ${focusStyle}`}
+          >
+            Sign up
+          </a>
+        </div>
+      </nav>
+    </header>
+  );
+}
+
+function Tag({ children }) {
+  return (
+    <span className="rounded-full border border-hair px-2 py-1 font-mono text-xs sm:text-xs">
+      {children}
+    </span>
+  );
+}
+
+function PanelLabel({ children }) {
+  return (
+    <span className="font-mono text-xs tracking-[0.18em] text-muted sm:text-xs">
+      {children}
+    </span>
+  );
+}
+
+function Chrome({ url, children }) {
+  return (
+    <div className="mt-5 overflow-hidden rounded-md border border-hair sm:mt-6">
+      <div className="flex items-center gap-2 border-b border-hair px-3 py-2">
+        <span className="flex gap-1" aria-hidden="true">
+          <i className="h-2 w-2 rounded-full bg-muted/40" />
+          <i className="h-2 w-2 rounded-full bg-muted/40" />
+          <i className="h-2 w-2 rounded-full bg-muted/40" />
+        </span>
+        <span className="truncate rounded bg-ink/5 px-2 py-0.5 font-mono text-xs text-muted">
+          {url}
+        </span>
       </div>
-
-      {/* Mobile Actions */}
-      <div className="flex items-center gap-2 md:hidden">
-        {/* Keep Sign up visible on mobile */}
-        <a
-          href="/signup"
-          className={`inline-flex min-h-11 items-center justify-center rounded-[10px] bg-accent px-4 text-sm font-semibold text-page transition-colors duration-200 hover:bg-accent-hover ${focusStyle}`}
-        >
-          Sign up
-        </a>
-
-        <button
-          type="button"
-          className={`flex h-11 w-11 items-center justify-center rounded-lg text-2xl transition-colors duration-200 hover:bg-white/5 ${focusStyle}`}
-          onClick={() => setIsMenuOpen((previous) => !previous)}
-          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={isMenuOpen}
-          aria-controls="mobile-menu"
-        >
-          <span aria-hidden="true">
-            {isMenuOpen ? '×' : '☰'}
-          </span>
-        </button>
-      </div>
-    </nav>
-
-    {/* Mobile Navigation: remains in the DOM */}
-    <div
-      id="mobile-menu"
-      aria-label="Mobile navigation"
-      aria-hidden={!isMenuOpen}
-      className={`border-t border-white/10 px-6 py-4 md:hidden ${
-        isMenuOpen ? 'block' : 'hidden'
-      }`}
-    >
-      <a
-        href="#features"
-        onClick={closeMenu}
-        tabIndex={isMenuOpen ? 0 : -1}
-        className={`block rounded-lg px-3 py-3 text-text-secondary transition-colors hover:bg-white/5 hover:text-white ${focusStyle}`}
-      >
-        Features
-      </a>
-
-      <a
-        href="/login"
-        onClick={closeMenu}
-        tabIndex={isMenuOpen ? 0 : -1}
-        className={`block rounded-lg px-3 py-3 text-text-secondary transition-colors hover:bg-white/5 hover:text-white ${focusStyle}`}
-      >
-        Log in
-      </a>
+      <div className="p-3 sm:p-4">{children}</div>
     </div>
-  </header>
+  );
+}
 
-  <main id="main-content" tabIndex={-1}>
-    {/* Hero Section */}
-    <section
-      id="home"
-      className="relative isolate scroll-mt-16 overflow-hidden"
-      aria-labelledby="hero-heading"
-    >
-      {/* Background Decorations */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-40 top-20 -z-10 h-96 w-96 rounded-full bg-accent/10 blur-[120px]"
-      />
+function Dot({ className }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`inline-block h-2 w-2 rounded-full ${className}`}
+    />
+  );
+}
 
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-40 bottom-0 -z-10 h-80 w-80 rounded-full bg-purple/10 blur-[120px]"
-      />
 
-      <div className="mx-auto grid min-h-[640px] max-w-[1296px] items-center gap-12 px-6 py-16 md:px-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:py-16">
-        {/* Hero Content */}
-        <div className="relative z-10 max-w-[600px]">
-          <span className="inline-flex items-center rounded-full border border-accent/30 bg-accent/5 px-4 py-2 text-[13px] font-semibold text-accent">
-            Built for junior developers
+function BeforePortfolio() {
+  return (
+    <>
+      <PanelLabel>BEFORE</PanelLabel>
+
+      <div className="mt-5 grid gap-3 sm:mt-6 sm:grid-cols-2 sm:gap-4">
+        <div className="-rotate-1 rounded-md border border-hair bg-page p-3 sm:p-4">
+          <p className="font-mono text-xs text-muted">
+            github.com/omar-hassan
+          </p>
+          <ul className="mt-3 space-y-2 font-mono text-xs sm:text-xs">
+            <li>
+              test123 <i className="text-muted">· no description</i>
+            </li>
+            <li>
+              final-final-v2 <i className="text-muted">· no README</i>
+            </li>
+            <li>
+              api-test-copy <i className="text-muted">· no README</i>
+            </li>
+            <li className="hidden sm:block">
+              untitled-project <i className="text-muted">· no description</i>
+            </li>
+          </ul>
+        </div>
+
+        <div className="rotate-1 rounded-md border border-hair bg-page p-3 sm:mt-6 sm:p-4">
+          <p className="font-mono text-xs text-muted">
+            linkedin.com/in/omar-hassan
+          </p>
+          <p className="mt-3 text-xs font-semibold sm:text-sm">Omar Hassan</p>
+          <p className="text-xs text-muted sm:text-xs">
+            Junior Developer · Freelance
+          </p>
+          <p className="mt-2 text-xs italic text-muted sm:text-xs">
+            About: (empty)
+          </p>
+          <p className="mt-2 text-xs sm:text-xs">
+            C# · SQL · Word · Excel · HTML · Teamwork
+          </p>
+        </div>
+      </div>
+
+      <p className="mt-5 hidden w-fit rotate-[-2deg] rounded border border-dashed border-line/50 px-3 py-1.5 font-mono text-xs text-muted sm:block">
+        CV_final_v3.pdf · last edited 2024
+      </p>
+
+      <p className="mt-5 text-xs italic text-muted sm:text-sm">
+        Three places, no story. Nobody connects the dots for you.
+      </p>
+    </>
+  );
+}
+
+function AfterPortfolio() {
+  return (
+    <>
+      <PanelLabel>AFTER</PanelLabel>
+
+      <Chrome url="omarhassan.dev">
+        <div className="flex items-center justify-between text-xs sm:text-xs">
+          <span className="font-heading text-base sm:text-lg">Omar Hassan</span>
+          <span className="hidden gap-4 text-muted sm:flex">
+            <span>Projects</span>
+            <span>Experience</span>
+            <span>Contact</span>
           </span>
-
-          <h1
-            id="hero-heading"
-            className="mt-8 text-[40px] leading-[1.1] font-bold tracking-tight sm:text-5xl lg:text-6xl xl:text-[64px]"
-          >
-            Your projects deserve
-            <br className="hidden sm:block" /> to be{' '}
-            <span className="bg-gradient-to-r from-accent to-purple bg-clip-text text-transparent">
-              seen.
-            </span>
-          </h1>
-
-          <p className="mt-6 max-w-[520px] text-base leading-[1.8] text-text-secondary sm:text-lg">
-            Connect your GitHub and LinkedIn. Our AI turns your projects
-            into a polished portfolio in minutes.
-          </p>
-
-          {/* Hero Actions */}
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <a
-              href="/signup"
-              className={`inline-flex min-h-[52px] items-center justify-center gap-3 rounded-[10px] bg-accent px-7 font-semibold text-page transition-colors duration-200 hover:bg-accent-hover active:scale-[0.98] ${focusStyle}`}
-            >
-              Build my portfolio
-              <span aria-hidden="true">→</span>
-            </a>
-
-            <a
-              href="#how-it-works"
-              className={`inline-flex min-h-[52px] items-center justify-center gap-2 rounded-[10px] px-5 font-semibold transition-colors duration-200 hover:text-accent ${focusStyle}`}
-            >
-              How it works
-              <span aria-hidden="true">↓</span>
-            </a>
-          </div>
-
-          {/* Privacy Message */}
-          <p className="mt-5 flex items-center gap-2 text-sm text-text-secondary">
-            <span aria-hidden="true">🔒</span>
-            Public data only. We never change your GitHub.
-          </p>
         </div>
 
-        {/* Illustration */}
-        <div
-          className="relative mx-auto flex min-h-[380px] w-full max-w-[520px] items-center justify-center sm:min-h-[440px]"
-          role="img"
-          aria-label="Illustration of scattered project cards transforming into an organized portfolio"
-        >
-          {/* Decorative Glow */}
-          <div
-            aria-hidden="true"
-            className="absolute h-64 w-64 rounded-full bg-accent/10 blur-[90px]"
-          />
-
-          {/* Scattered Project Card 1 */}
-          <div
-            aria-hidden="true"
-            className="absolute left-1 top-8 w-28 -rotate-6 rounded-2xl border border-white/10 bg-card/90 p-3 opacity-70 sm:left-0 sm:top-12 sm:w-40 sm:p-4"
-          >
-            <div className="mb-3 h-7 w-7 rounded-lg bg-purple/20 sm:mb-4 sm:h-8 sm:w-8" />
-            <div className="h-2 w-16 rounded-full bg-white/20 sm:w-20" />
-            <div className="mt-3 h-2 w-12 rounded-full bg-white/10 sm:w-14" />
-          </div>
-
-          {/* Scattered Project Card 2 */}
-          <div
-            aria-hidden="true"
-            className="absolute bottom-8 left-0 w-28 rotate-3 rounded-2xl border border-white/10 bg-card/90 p-3 opacity-70 sm:bottom-14 sm:left-3 sm:w-40 sm:p-4"
-          >
-            <div className="mb-3 h-7 w-7 rounded-lg bg-accent/20 sm:mb-4 sm:h-8 sm:w-8" />
-            <div className="h-2 w-20 rounded-full bg-white/20 sm:w-24" />
-            <div className="mt-3 h-2 w-14 rounded-full bg-white/10 sm:w-16" />
-          </div>
-
-          {/* Scattered Project Card 3: repositioned */}
-          <div
-            aria-hidden="true"
-            className="absolute right-1 top-8 w-24 rotate-3 rounded-2xl border border-white/10 bg-card/90 p-3 opacity-70 sm:right-0 sm:top-12 sm:w-36 sm:p-4"
-          >
-            <div className="mb-3 h-7 w-7 rounded-lg bg-success/15 sm:mb-4 sm:h-8 sm:w-8" />
-            <div className="h-2 w-14 rounded-full bg-white/20 sm:w-16" />
-            <div className="mt-3 h-2 w-10 rounded-full bg-white/10 sm:w-12" />
-          </div>
-
-          {/* AI Sparkle */}
-          <div
-            aria-hidden="true"
-            className="absolute left-1/2 top-1/2 z-10 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-accent/50 bg-page text-xl text-accent shadow-[0_0_30px_rgba(34,211,238,0.12)]"
-          >
-            ✦
-          </div>
-
-          {/* Organized Portfolio Card */}
-          <div className="absolute right-1 top-1/2 z-20 w-[200px] -translate-y-1/2 rounded-2xl border border-card-border bg-card p-4 shadow-xl sm:right-4 sm:w-[240px] sm:p-5 lg:right-2 lg:w-[260px] lg:p-6">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-gray-600 to-gray-800 sm:h-11 sm:w-11" />
-
-              <div className="min-w-0 flex-1">
-                <div className="h-3 w-24 max-w-full rounded-full bg-white/25" />
-                <div className="mt-2 h-2 w-16 rounded-full bg-white/10" />
-              </div>
-            </div>
-
-            <div className="mt-5 h-2.5 w-full rounded-full bg-white/20 sm:mt-6" />
-            <div className="mt-3 h-2.5 w-4/5 rounded-full bg-white/10" />
-
-            {/* Technology Tags */}
-            <div className="mt-4 flex flex-wrap gap-1.5 sm:mt-5 sm:gap-2">
-              <span className="rounded-md border border-accent/20 bg-accent/5 px-1.5 py-1 font-mono text-[10px] text-accent sm:px-2">
-                React
-              </span>
-              <span className="rounded-md border border-purple/20 bg-purple/5 px-1.5 py-1 font-mono text-[10px] text-purple sm:px-2">
-                .NET
-              </span>
-              <span className="rounded-md border border-white/10 px-1.5 py-1 font-mono text-[10px] text-text-secondary sm:px-2">
-                SQL
-              </span>
-            </div>
-
-            {/* Project Previews */}
-            <div className="mt-5 space-y-3 sm:mt-6">
-              <div className="rounded-xl border border-white/5 bg-page/70 p-3">
-                <div className="h-2.5 w-3/5 rounded-full bg-white/20" />
-                <div className="mt-3 h-2 w-full rounded-full bg-white/10" />
-                <div className="mt-2 h-2 w-2/3 rounded-full bg-white/10" />
-              </div>
-
-              <div className="rounded-xl border border-white/5 bg-page/70 p-3">
-                <div className="h-2.5 w-2/5 rounded-full bg-white/20" />
-                <div className="mt-3 h-2 w-4/5 rounded-full bg-white/10" />
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center gap-2 text-xs text-text-secondary sm:mt-5">
-              <span className="h-2 w-2 rounded-full bg-success" />
-              Portfolio preview
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* How It Works */}
-    <section
-      id="how-it-works"
-      className="scroll-mt-24 px-6 py-20 md:px-12 md:py-[120px]"
-      aria-labelledby="how-heading"
-    >
-      <div className="mx-auto max-w-[1200px]">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2
-            id="how-heading"
-            className="text-3xl font-bold tracking-tight sm:text-4xl"
-          >
-            How it works
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-text-secondary sm:text-lg">
-            From scattered repos to a polished portfolio in three steps.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {[
-            {
-              number: '01',
-              icon: '⌘',
-              title: 'Connect',
-              description:
-                'Sign in and share your GitHub and LinkedIn.',
-            },
-            {
-              number: '02',
-              icon: '✦',
-              title: 'Talk to the AI',
-              description:
-                'Answer a few questions about your projects.',
-            },
-            {
-              number: '03',
-              icon: '↗',
-              title: 'Get your portfolio',
-              description:
-                'Preview it, edit it, and make it yours.',
-            },
-          ].map((step) => (
-            <article
-              key={step.number}
-              className="rounded-2xl border border-card-border bg-card p-6 transition-colors duration-200 hover:border-accent/30 sm:p-8"
-            >
-              <span className="font-mono text-3xl font-semibold text-accent">
-                {step.number}
-              </span>
-
-              <div
-                aria-hidden="true"
-                className="mt-6 flex h-12 w-12 items-center justify-center rounded-xl border border-accent/20 bg-accent/5 text-2xl text-accent"
-              >
-                {step.icon}
-              </div>
-
-              <h3 className="mt-5 text-xl font-semibold">
-                {step.title}
-              </h3>
-
-              <p className="mt-3 leading-relaxed text-text-secondary">
-                {step.description}
-              </p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    {/* Features */}
-    <section
-      id="features"
-      className="scroll-mt-24 px-6 py-20 md:px-12 md:py-[120px]"
-      aria-labelledby="features-heading"
-    >
-      <div className="mx-auto max-w-[1200px]">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2
-            id="features-heading"
-            className="text-3xl font-bold tracking-tight sm:text-4xl"
-          >
-            Two tools, one goal
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-text-secondary sm:text-lg">
-            Everything you need to present your work with confidence.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
-          {/* Portfolio Builder */}
-          <article className="rounded-2xl border border-card-border bg-card p-6 sm:p-8">
-            <div
-              aria-hidden="true"
-              className="flex h-12 w-12 items-center justify-center rounded-xl border border-accent/20 bg-accent/5 text-2xl text-accent"
-            >
-              ✦
-            </div>
-
-            <h3 className="mt-6 text-2xl font-semibold">
-              Portfolio Builder
-            </h3>
-
-            <p className="mt-3 leading-relaxed text-text-secondary">
-              Chat with an AI that understands your repos, and watch your
-              portfolio take shape.
-            </p>
-
-            <ul className="mt-6 space-y-4">
-              {[
-                'AI-written project descriptions',
-                'Live preview',
-                'Add experience, education, and skills',
-              ].map((feature) => (
-                <li key={feature} className="flex items-start gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="font-semibold text-success"
-                  >
-                    ✓
-                  </span>
-                  <span className="text-text-primary">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </article>
-
-          {/* GitHub Profile Improver */}
-          <article className="rounded-2xl border border-card-border bg-card p-6 sm:p-8">
-            <div
-              aria-hidden="true"
-              className="flex h-12 w-12 items-center justify-center rounded-xl border border-purple/20 bg-purple/5 text-2xl text-purple"
-            >
-              ↗
-            </div>
-
-            <h3 className="mt-6 text-2xl font-semibold">
-              GitHub Profile Improver
-            </h3>
-
-            <p className="mt-3 leading-relaxed text-text-secondary">
-              Get clear suggestions to improve your profile and a
-              ready-to-use README for every repo.
-            </p>
-
-            <ul className="mt-6 space-y-4">
-              {[
-                'Profile analysis',
-                'Per-repo README help',
-                'You stay in control',
-              ].map((feature) => (
-                <li key={feature} className="flex items-start gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="font-semibold text-success"
-                  >
-                    ✓
-                  </span>
-                  <span className="text-text-primary">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    {/* Final CTA */}
-    <section className="px-6 py-16 md:px-12 md:py-20">
-      <div className="mx-auto flex min-h-[300px] max-w-[1200px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-gradient-to-br from-purple/15 via-card to-accent/10 px-6 py-12 text-center sm:px-12">
-        <h2 className="max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">
-          Ready to show your work?
-        </h2>
-
-        <p className="mt-4 max-w-xl leading-relaxed text-text-secondary sm:text-lg">
-          It takes a few minutes. No design skills needed.
+        <h3 className="mt-4 max-w-[330px] font-heading text-2xl leading-[1.05] sm:mt-5 sm:text-[34px]">
+          Backend developer building reliable APIs and services.
+        </h3>
+        <p className="mt-2 max-w-[340px] text-xs leading-relaxed text-muted sm:text-sm">
+          Based in Cairo. I design APIs and databases that stay simple as they grow.
         </p>
 
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          <Tag>.NET</Tag>
+          <Tag>SQL</Tag>
+          <Tag>Docker</Tag>
+          <Tag>Git</Tag>
+        </div>
+
+        <div className="mt-4 border-t border-hair pt-3">
+          <p className="font-mono text-xs tracking-widest text-muted">
+            SELECTED WORK
+          </p>
+
+          <div className="mt-2 flex items-start justify-between gap-3 border-b border-hair pb-2">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold sm:text-sm">Booking API</p>
+              <p className="text-xs text-muted sm:text-xs">
+                REST API with auth, roles and Swagger docs.
+              </p>
+            </div>
+            <span className="shrink-0 font-mono text-xs text-accent">
+              Docs ↗ Code ↗
+            </span>
+          </div>
+
+          <div className="mt-2 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold sm:text-sm">Inventory Service</p>
+              <p className="text-xs text-muted sm:text-xs">
+                Stock tracking service with PostgreSQL and tests.
+              </p>
+            </div>
+            <span className="shrink-0 font-mono text-xs text-accent">
+              Docs ↗ Code ↗
+            </span>
+          </div>
+        </div>
+      </Chrome>
+    </>
+  );
+}
+
+
+function BeforeGithub() {
+  return (
+    <>
+      <PanelLabel>BEFORE</PanelLabel>
+
+      <Chrome url="github.com/omar-hassan">
+        <div className="flex items-center gap-3">
+          <div
+            aria-hidden="true"
+            className="h-12 w-12 shrink-0 rounded-full bg-ink/10 sm:h-14 sm:w-14"
+          />
+          <div className="min-w-0">
+            <p className="font-mono text-sm sm:text-base">omar-hassan</p>
+            <p className="text-xs italic text-muted sm:text-xs">
+              No bio · No location · No links
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-md border border-dashed border-line/50 p-3 text-center text-xs italic text-muted sm:text-xs">
+          You don&apos;t have any pinned repositories yet.
+        </div>
+
+        <p className="mt-4 font-mono text-xs tracking-widest text-muted">
+          REPOSITORIES
+        </p>
+        <ul className="mt-1 font-mono text-xs sm:text-xs">
+          {[
+            ["test123", "no description"],
+            ["final-final-v2", "no README"],
+            ["api-test-copy", "no README"],
+            ["untitled-project", "no description"],
+          ].map(([name, note], i) => (
+            <li
+              key={name}
+              className={`flex items-center justify-between border-b border-hair py-2 ${
+                i === 3 ? "hidden sm:flex" : ""
+              }`}
+            >
+              <span>{name}</span>
+              <span className="italic text-muted">{note}</span>
+            </li>
+          ))}
+        </ul>
+      </Chrome>
+    </>
+  );
+}
+
+function PinnedCard({ name, text, lang, dot, stars }) {
+  return (
+    <div className="rounded-md border border-hair p-3">
+      <p className="font-mono text-xs font-medium text-accent sm:text-xs">
+        {name}
+      </p>
+      <p className="mt-1 text-xs leading-relaxed text-muted sm:text-xs">
+        {text}
+      </p>
+      <p className="mt-2 flex items-center gap-3 text-xs text-muted">
+        <span className="flex items-center gap-1.5">
+          <Dot className={dot} />
+          {lang}
+        </span>
+        <span>★ {stars}</span>
+      </p>
+    </div>
+  );
+}
+
+function AfterGithub() {
+  return (
+    <>
+      <PanelLabel>AFTER</PanelLabel>
+
+      <Chrome url="github.com/omar-hassan">
+        <div className="flex items-center gap-3">
+          <div
+            aria-hidden="true"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-line font-heading text-xl sm:h-14 sm:w-14 sm:text-2xl"
+          >
+            OH
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold sm:text-base">Omar Hassan</p>
+            <p className="font-mono text-xs text-muted sm:text-xs">
+              omar-hassan
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-3 text-xs leading-relaxed sm:text-sm">
+          Backend developer · .NET &amp; SQL. Building reliable APIs and
+          services.
+        </p>
+        <p className="mt-1 text-xs text-muted sm:text-xs">
+          Cairo, Egypt · omarhassan.dev
+        </p>
+
+        <div className="mt-3 rounded-md border border-hair">
+          <p className="border-b border-hair px-3 py-1.5 font-mono text-xs tracking-widest text-muted">
+            omar-hassan / README.md
+          </p>
+          <p className="px-3 py-2 text-xs leading-relaxed sm:text-xs">
+            <span className="font-heading text-base sm:text-lg">Hi, I&apos;m Omar.</span>{" "}
+            Currently learning Docker. Ask me about my projects below.
+          </p>
+        </div>
+
+        <p className="mt-3 font-mono text-xs tracking-widest text-muted">
+          PINNED
+        </p>
+        <div className="mt-1.5 grid grid-cols-2 gap-2">
+          <PinnedCard
+            name="booking-api"
+            text="REST API with auth, roles and Swagger docs."
+            lang="C#"
+            dot="bg-accent"
+            stars="12"
+          />
+          <PinnedCard
+            name="inventory-service"
+            text="Stock tracking service with PostgreSQL and tests."
+            lang="Python"
+            dot="bg-muted"
+            stars="8"
+          />
+        </div>
+      </Chrome>
+    </>
+  );
+}
+
+function HandleIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+    >
+      <path d="M9 7l-5 5 5 5" />
+      <path d="M15 7l5 5-5 5" />
+    </svg>
+  );
+}
+
+const VARIANTS = {
+  portfolio: {
+    label:
+      "Comparison: a messy list of repositories versus an organized portfolio",
+    Before: BeforePortfolio,
+    After: AfterPortfolio,
+  },
+  github: {
+    label:
+      "Comparison: a repository with no README versus the same repository with a clear README",
+    Before: BeforeGithub,
+    After: AfterGithub,
+  },
+};
+
+const REST_POSITION = 8;
+
+function BeforeAfter({ variant }) {
+  const { Before, After, label } = VARIANTS[variant];
+
+  const [position, setPosition] = useState(100); // 100 = fully BEFORE
+  const [isDragging, setIsDragging] = useState(false);
+
+  const containerRef = useRef(null);
+  const frame = useRef(null);
+  const interacted = useRef(false);
+  const dragging = useRef(false);
+
+ useEffect(() => {
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (reduced) {
+      setPosition(REST_POSITION);
+      return;
+    }
+
+    const start = performance.now();
+    const duration = 2200;
+
+    function animate(now) {
+      if (interacted.current) return;
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setPosition(100 - eased * (100 - REST_POSITION));
+      if (progress < 1) frame.current = requestAnimationFrame(animate);
+    }
+
+    frame.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame.current);
+  }, []);
+
+  function stopIntro() {
+    interacted.current = true;
+    if (frame.current) cancelAnimationFrame(frame.current);
+  }
+
+  function updateFromX(clientX) {
+    const bounds = containerRef.current?.getBoundingClientRect();
+    if (!bounds) return;
+    const next = ((clientX - bounds.left) / bounds.width) * 100;
+    setPosition(Math.max(0, Math.min(100, next)));
+  }
+
+  function onPointerDown(event) {
+    stopIntro();
+    dragging.current = true;
+    setIsDragging(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    updateFromX(event.clientX);
+  }
+
+  function onPointerMove(event) {
+    if (dragging.current) updateFromX(event.clientX);
+  }
+
+  function onPointerUp() {
+    dragging.current = false;
+    setIsDragging(false);
+  }
+
+  function onKeyboardChange(event) {
+    stopIntro();
+    setPosition(Number(event.target.value));
+  }
+
+  const pos = { left: `${position}%` };
+  const sliderValue = Math.round(position / 5) * 5;
+
+  return (
+    <div
+      ref={containerRef}
+      role="group"
+      aria-label={label}
+      className={`relative grid min-h-[420px] touch-pan-y select-none overflow-hidden rounded-md border border-line has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-[3px] has-[input:focus-visible]:outline-accent ${
+        isDragging ? "cursor-grabbing" : "cursor-col-resize"
+      }`}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+    >
+      <div className="col-start-1 row-start-1 overflow-hidden bg-before p-5 pb-10 sm:p-8 sm:pb-10">
+        <Before />
+      </div>
+
+      <div
+        className="col-start-1 row-start-1 overflow-hidden bg-surface p-5 pb-10 pl-8 sm:p-8 sm:pb-10 sm:pl-12"
+        style={{ clipPath: `inset(0 0 0 ${position}%)` }}
+        aria-hidden="true"
+      >
+        <After />
+      </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 top-0 z-10 w-0.5 -translate-x-1/2 bg-accent"
+        style={pos}
+      />
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute top-1/2 z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-accent text-on-accent shadow-[0_2px_0_0_var(--line)] transition-transform duration-150 ${
+          isDragging ? "scale-110" : ""
+        }`}
+        style={pos}
+      >
+        <HandleIcon />
+      </div>
+
+      <span className="pointer-events-none absolute bottom-3 right-4 z-10 font-mono text-xs text-muted">
+        Sample data
+      </span>
+
+       <input
+        type="range"
+        min="0"
+        max="100"
+        step="5"
+        value={sliderValue}
+        onChange={onKeyboardChange}
+        aria-label="Comparison divider"
+        aria-valuetext={`Showing ${100 - sliderValue}% of the improved version`}
+        className="sr-only"
+      />
+    </div>
+  );
+}
+const TABS = [
+  { id: "portfolio", label: "Portfolio" },
+  { id: "github", label: "GitHub profile" },
+];
+
+function DemoTabs({ active, onChange }) {
+  function onKeyDown(event) {
+    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+    event.preventDefault();
+    const next = active === "portfolio" ? "github" : "portfolio";
+    onChange(next);
+    document.getElementById(`tab-${next}`)?.focus();
+  }
+
+  return (
+    <div
+      role="tablist"
+      aria-label="Choose what to preview"
+      className="mb-4 inline-flex rounded-full border border-line p-1"
+      onKeyDown={onKeyDown}
+    >
+      {TABS.map((tab) => {
+        const selected = active === tab.id;
+        return (
+          <button
+            key={tab.id}
+            id={`tab-${tab.id}`}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            aria-controls="demo-panel"
+            tabIndex={selected ? 0 : -1}
+            onClick={() => onChange(tab.id)}
+            className={`min-h-10 rounded-full px-5 font-mono text-xs tracking-[0.12em] transition-colors duration-200 ${focusStyle} ${
+              selected ? "bg-ink text-page" : "text-muted hover:text-ink"
+            }`}
+          >
+            {tab.label.toUpperCase()}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+function Hero() {
+  const [tab, setTab] = useState("portfolio");
+
+  return (
+    <section
+      id="home"
+      aria-labelledby="hero-heading"
+      className="mx-auto grid max-w-[1280px] items-center gap-10 px-6 py-10 md:px-14 md:py-14 lg:min-h-[calc(100vh-121px)] lg:grid-cols-[0.95fr_1.05fr] lg:gap-14 lg:py-8"
+    >
+      <div>
+        <h1
+          id="hero-heading"
+          className="font-heading text-[clamp(48px,6.4vw,96px)] leading-[0.97] tracking-[-0.025em]"
+        >
+          Turn your projects
+          
+          <br />
+         into a professional <span className="mark italic">story </span>  worth telling.
+        </h1>
+
+        <p className="mt-6 max-w-[470px] text-base leading-[1.7] text-muted sm:text-lg">
+   Build your portfolio and improve your GitHub presence with AI-powered tools.
+
+        </p>
+
+
+
         <a
           href="/signup"
-          className={`mt-8 inline-flex min-h-[52px] items-center justify-center gap-3 rounded-[10px] bg-accent px-7 font-semibold text-page transition-colors duration-200 hover:bg-accent-hover active:scale-[0.98] ${focusStyle}`}
+          className={`group mt-8 inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-ink px-7 font-semibold text-page transition-transform duration-150 hover:opacity-90 active:scale-[0.98] sm:w-auto ${focusStyle}`}
         >
           Build my portfolio
-          <span aria-hidden="true">→</span>
+          <span
+            aria-hidden="true"
+            className="inline-block transition-transform duration-200 group-hover:translate-x-1"
+          >
+            →
+          </span>
         </a>
 
-        <p className="mt-5 text-sm text-text-secondary">
+        <p className="mt-4 flex items-center gap-2 text-sm text-muted">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            className="h-4 w-4 shrink-0"
+          >
+            <rect x="5" y="10" width="14" height="11" rx="2" />
+            <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+          </svg>
           Public data only. We never change your GitHub.
         </p>
       </div>
-    </section>
-  </main>
 
-  {/* Footer */}
-  <footer className="border-t border-white/10 bg-[#080C18] px-6 py-8 md:px-12">
-    <div className="mx-auto flex max-w-[1200px] flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <a
-          href="/"
-          className={`text-xl font-bold tracking-tight ${focusStyle}`}
-          aria-label="PortfolioX Home"
-        >
-          Portfolio<span className="text-accent">X</span>
-        </a>
-
-        <p className="mt-2 text-sm text-text-secondary">
-          Built for DEPI · Front-End Development
-        </p>
+      <div className="w-full">
+        <DemoTabs active={tab} onChange={setTab} />
+        <div id="demo-panel" role="tabpanel" aria-labelledby={`tab-${tab}`}>
+          <BeforeAfter key={tab} variant={tab} />
+        </div>
       </div>
+    </section>
+  );
+}
 
-      <nav aria-label="Footer navigation" className="flex flex-wrap gap-5">
-        <a
-          href="#features"
-          className={`text-sm text-text-secondary transition-colors hover:text-white ${focusStyle}`}
-        >
-          Features
-        </a>
+function Footer() {
+  return (
+    <footer className="border-t border-line">
+      <div className="mx-auto flex max-w-[1280px] flex-col gap-2 px-6 py-4 md:px-14 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted">
+          <span className="font-heading text-lg text-ink">PortfolioX</span>
+          <span aria-hidden="true"> · </span>
+          Portfolios for developers
+        </p>
 
-        <a
-          href="#how-it-works"
-          className={`text-sm text-text-secondary transition-colors hover:text-white ${focusStyle}`}
-        >
-          How it works
-        </a>
+        <div className="flex items-center gap-5">
+          <a
+            href="https://github.com/nadamomtaz/PortfolioX"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`text-sm text-muted hover:text-ink hover:underline ${focusStyle}`}
+          >
+            GitHub ↗
+          </a>
+          <span className="font-mono text-xs text-muted">© 2026</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
 
-        <a
-          href="https://github.com/nadamomtaz/PortfolioX"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`text-sm text-text-secondary transition-colors hover:text-white ${focusStyle}`}
-        >
-          GitHub ↗
-        </a>
-      </nav>
+function Home() {
+  const [theme, toggleTheme] = useTheme();
+
+  return (
+    <div className="flex min-h-screen flex-col overflow-x-clip bg-page text-ink">
+      <a
+        href="#main-content"
+        className="sr-only z-[100] rounded-md bg-ink px-4 py-3 font-semibold text-page focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >
+        Skip to main content
+      </a>
+
+      <Navbar theme={theme} onToggleTheme={toggleTheme} />
+
+      <main id="main-content" tabIndex={-1} className="flex-1">
+        <Hero />
+      </main>
+
+      <Footer />
     </div>
-
-    <div className="mx-auto mt-6 max-w-[1200px] border-t border-white/5 pt-5">
-      <p className="text-xs text-text-secondary">
-        © 2026 PortfolioX
-      </p>
-    </div>
-  </footer>
-</div>
-
-
-);
+  );
 }
 
 export default Home;
