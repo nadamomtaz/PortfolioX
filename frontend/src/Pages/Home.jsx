@@ -639,7 +639,7 @@ function Hero() {
           href="/signup"
           className={`group mt-8 inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-ink px-7 font-semibold text-page transition-transform duration-150 hover:opacity-90 active:scale-[0.98] sm:w-auto ${focusStyle}`}
         >
-          Build my portfolio
+          Get Started
           <span
             aria-hidden="true"
             className="inline-block transition-transform duration-200 group-hover:translate-x-1"
