@@ -1,4 +1,5 @@
-import { focusStyle } from "../../lib/styles";
+const focusStyle =
+  "focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-accent";
 function Footer() {
   return (
     <footer className="border-t border-line">
