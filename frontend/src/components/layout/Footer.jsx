@@ -1,3 +1,4 @@
+import { focusStyle } from "../../lib/styles";
 function Footer() {
   return (
     <footer className="border-t border-line">
@@ -23,3 +24,4 @@ function Footer() {
     </footer>
   );
 }
+export default Footer;
