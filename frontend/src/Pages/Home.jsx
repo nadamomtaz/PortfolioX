@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-
+import Footer from "../components/layout/Footer";
 const focusStyle =
   "focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-accent";
 
